@@ -1,18 +1,10 @@
-const SRV_URL = 'funsui.gwyrin.ch';
 var axios = require('axios');
 var bouncy = require('bouncy');
+var config = require('./config.json');
 var fs = require('fs');
-var socket = require('socket.io-client')(`wss://${SRV_URL}`);
-var config;
-const CONFIG_PATH = 'config.json';
+var socket = require('socket.io-client')(`wss://${config.url}`);
 
-
-fs.readFile(CONFIG_PATH, function (err, data) {
-    if (err) return;
-    config = JSON.parse(data);
-});
-
-var server = function (req, res, bounce) {
+/*var server = function (req, res, bounce) {
     if (config !== undefined) {
         let notfound = true;
         let ok = false;
@@ -43,9 +35,10 @@ var server = function (req, res, bounce) {
             res.end('no such host');
         }
     }
-}
+}*/
 
-/*var server = function (req, res, bounce) {
+var server = function (req, res, bounce) {
+    console.log(config);
     if (config !== undefined) {
         let notfound = true;
         let ok = false;
@@ -76,12 +69,12 @@ var server = function (req, res, bounce) {
             res.end('no such host');
         }
     }
-}*/
+}
 
 
 
-serverhttp = bouncy(server);
-serverhttp.listen(9090);
+serverhttp = bouncy((req, res, bounce) => { bounce(443) });
+serverhttp.listen(80);
 
 socket.on('connect', function () { socket.emit('proxy_join') });
 socket.on('load_config', c => { config = c });
@@ -90,14 +83,14 @@ socket.on('load_config', c => { config = c });
 //=================
 //      HTTPS
 //=================
-/*const letsencryptfolder = '/etc/letsencrypt/archive/audergonhome.internet-box.ch/';
+const letsencryptfolder = '/etc/letsencrypt/archive/gwyrin.ch-0001/';
 var options = {
-    key: fs.readFileSync(letsencryptfolder + 'privkey3.pem'),
-    cert: fs.readFileSync(letsencryptfolder + 'fullchain3.pem'),
-    ca: [fs.readFileSync(letsencryptfolder + 'chain3.pem')]
+    key: fs.readFileSync(letsencryptfolder + 'privkey1.pem'),
+    cert: fs.readFileSync(letsencryptfolder + 'fullchain1.pem'),
+    ca: [fs.readFileSync(letsencryptfolder + 'chain1.pem')]
 };
 
 var serverhttps = bouncy(options, server);
-serverhttps.listen(443);*/
+serverhttps.listen(443);
 
 

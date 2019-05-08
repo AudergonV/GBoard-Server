@@ -30,20 +30,20 @@ async function init() {
     utils.logInfo(`Chargement de "node-vhost" version ${ctrl.getVersion()}...`);
     let okconfig = await ctrlconfig.loadConfig();
     if (okconfig) {
-        const port = process.argv[2] || 9088;
+        const port = process.argv[2] || ctrlconfig.getConfig().port || 9089;
         const server = app.listen(port, async () => {
             await ctrl.openDB(ctrlconfig.getConfig().credentials.db_dashboard);
             utils.logInfo(`Serveur http en écoute sur le port ${port}`);
         });
 
-        const proxy = new (forever.Monitor)('./proxy-test.js', { max: 3 });
+       /* const proxy = new (forever.Monitor)('./proxy-test.js', { max: 3 });
         proxy.on('error', (message) => {
             utils.logError(`Impossible de démarrer le proxy ! ${message}`);
         });
         proxy.on('stderr', (message) => {
             utils.logError(`Une erreur de proxy est survenue : ${message}`);
         });
-        proxy.start();
+        proxy.start();*/
 
         ctrlfv.loadConfig(ctrlconfig.getConfig());
         ctrlgs.loadConfig(ctrlconfig.getConfig());
