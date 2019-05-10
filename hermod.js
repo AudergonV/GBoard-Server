@@ -71,26 +71,28 @@ var server = function (req, res, bounce) {
     }
 }
 
-
-
-serverhttp = bouncy((req, res, bounce) => { bounce(443) });
-serverhttp.listen(80);
-
-socket.on('connect', function () { socket.emit('proxy_join') });
-socket.on('load_config', c => { config = c });
-
-
 //=================
 //      HTTPS
 //=================
 const letsencryptfolder = '/etc/letsencrypt/archive/gwyrin.ch-0001/';
-var options = {
+const options = {
     key: fs.readFileSync(letsencryptfolder + 'privkey1.pem'),
     cert: fs.readFileSync(letsencryptfolder + 'fullchain1.pem'),
     ca: [fs.readFileSync(letsencryptfolder + 'chain1.pem')]
 };
 
-var serverhttps = bouncy(options, server);
+
+
+const serverhttp = bouncy(server);
+serverhttp.listen(80);
+
+const serverhttps = bouncy(options, server);
 serverhttps.listen(443);
+
+
+
+socket.on('connect', function () { socket.emit('proxy_join') });
+socket.on('load_config', c => { config = c });
+
 
 
