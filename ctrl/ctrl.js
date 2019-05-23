@@ -6,7 +6,7 @@ const MSG = {
     forbidden: "Vous n'avez pas le droit d'effectuer cette action."
 };
 
-const VERSION = "1.1";
+const VERSION = "1.2";
 
 var openDB = async function (credentials) {
     await wrkdb.open(credentials.host, credentials.user, credentials.password, credentials.dbname);
