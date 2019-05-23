@@ -1,16 +1,16 @@
-/*
- * Description   :   Controller des interaction avec les application node via forever
- * Date          :   15.04.2019
- * Auteur        :   Vincent Audergon
-*/
-var Foreverapp = require('../models/Foreverapp');
+/** 
+ * @classdesc Controller des interaction avec les application node via forever
+ * @date 15.04.2019
+ * @author Vincent Audergon
+ */
+const Foreverapp = require('../models/Foreverapp');
 const FOREVER_ROOM = "/forever";
-var apps = [];
-let io;
-let utils = require('../wrk/utils');
+const apps = [];
+const utils = require('../wrk/utils');
 let oldconfig = undefined;
+let io;
 
-var loadConfig = function (config) {
+const loadConfig = function (config) {
     if (oldconfig === undefined) {
         for (let h in config.hosts) {
             let host = config.hosts[h];
@@ -42,7 +42,7 @@ var loadConfig = function (config) {
     utils.logInfo(`Configuration chargée dans le contrôleur de vhosts.`);
 }
 
-let initHost = function (config, host) {
+const initHost = function (config, host) {
     apps[host.hostname] = new Foreverapp(host.dir + host.filename, {
         cwd: host.dir,
         args: [host.port],
@@ -57,7 +57,7 @@ let initHost = function (config, host) {
     apps[host.hostname].onErr = (message) => { utils.logError(`Une erreur est suvenue avec l'hôte virtuel ${host.hostname} : ${message}`); };
 }
 
-var init = function (i, socket) {
+const init = function (i, socket) {
     io = i;
     socket.on('fv_join', () => {
         utils.logInfo('Socket ajouté dans la room ' + FOREVER_ROOM);
@@ -77,7 +77,7 @@ var init = function (i, socket) {
     });
 };
 
-var checkAuth = function (socket, host, next) {
+const checkAuth = function (socket, host, next) {
     if (socket.user !== undefined && apps[host] !== undefined) {
         if (apps[host].authorizedusers.indexOf(socket.user.id) !== -1) {
             next();
@@ -87,4 +87,10 @@ var checkAuth = function (socket, host, next) {
     }
 }
 
-module.exports = { init, loadConfig };
+const closeAllApps = function (){
+    for (let app of apps){
+        app.stopApp();
+    }
+}
+
+module.exports = { init, loadConfig, closeAllApps };

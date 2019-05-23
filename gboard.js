@@ -37,14 +37,12 @@ async function init() {
             utils.logInfo(`Serveur http en écoute sur le port ${port}`);
         });
 
-       /* const proxy = new (forever.Monitor)('./proxy-test.js', { max: 3 });
-        proxy.on('error', (message) => {
-            utils.logError(`Impossible de démarrer le proxy ! ${message}`);
+        process.on('SIGINT', function () {
+            ctrlfv.closeAllApps();
+            ctrl.closeDB();
+            process.exit(1);
         });
-        proxy.on('stderr', (message) => {
-            utils.logError(`Une erreur de proxy est survenue : ${message}`);
-        });
-        proxy.start();*/
+
 
         ctrlfv.loadConfig(config);
         ctrlgs.loadConfig(config);
@@ -253,5 +251,8 @@ async function init() {
         process.exit(1);
     }
 }
+
+
+
 
 
