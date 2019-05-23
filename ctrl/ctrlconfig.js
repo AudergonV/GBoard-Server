@@ -27,6 +27,10 @@ var setConfig = async function (c) {
     return retour;
 }
 
+/**
+ * Charge le fichier de configuration
+ * @deprecated
+ */
 var loadConfig = async function () {
     let retour = false;
     utils.logInfo(`Chargement de la configuration ${CONFIG_PATH} en cours...`);

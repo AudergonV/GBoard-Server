@@ -2,6 +2,8 @@ var express = require('express');
 var cors = require('cors');
 var forever = require('forever-monitor');
 var jwt = require("jsonwebtoken");
+let config = require("./config");
+let secret = require('./secretconfig')
 //Controllers
 var ctrl = require('./ctrl/ctrl');
 var ctrlfv = require('./ctrl/ctrlfv');
@@ -28,11 +30,10 @@ init();
 
 async function init() {
     utils.logInfo(`Chargement de "node-vhost" version ${ctrl.getVersion()}...`);
-    let okconfig = await ctrlconfig.loadConfig();
-    if (okconfig) {
-        const port = process.argv[2] || ctrlconfig.getConfig().port || 9089;
+    if (config) {
+        const port = process.argv[2] || config.port || 9089;
         const server = app.listen(port, async () => {
-            await ctrl.openDB(ctrlconfig.getConfig().credentials.db_dashboard);
+            await ctrl.openDB(secret.credentials.db_dashboard);
             utils.logInfo(`Serveur http en écoute sur le port ${port}`);
         });
 
@@ -45,14 +46,15 @@ async function init() {
         });
         proxy.start();*/
 
-        ctrlfv.loadConfig(ctrlconfig.getConfig());
-        ctrlgs.loadConfig(ctrlconfig.getConfig());
+        ctrlfv.loadConfig(config);
+        ctrlgs.loadConfig(config);
 
         //WebSocket
         var io = require('socket.io').listen(server);
         io.sockets.on('connection', function (socket) {
             socket.on('login', (token) => {
                 jwt.verify(token, SECRET_KEY, (err, data) => {
+                    if (err) return;
                     utils.logWarning(data.user.username + " est connecté !");
                     socket.user = data.user;
                     ctrlfv.init(io, socket);
@@ -60,7 +62,7 @@ async function init() {
                     ctrlvm.init(io, socket);
                     ctrlos.init(io, socket);
                     ctrlproxy.init(io, socket, ctrl);
-                    ctrlproxy.loadConfig(ctrlconfig.getConfig());
+                    ctrlproxy.loadConfig(config);
                 });
             });
             socket.on('logout', () => {
@@ -107,7 +109,7 @@ async function init() {
         });
 
         app.get('/api/config', function (req, res) {
-            res.status(200).send({ code: 200, config: ctrlconfig.getConfig() });
+            res.status(200).send({ code: 200, config: config });
         });
 
         app.post('/api/config', checkAuth, function (req, res) {

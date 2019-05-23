@@ -1,5 +1,5 @@
 /*
- * Description   :   Controller des interaction aves le proxy
+ * Description   :   Controller des interaction aves hermod.js
  * Date          :   25.04.2019
  * Auteur        :   Vincent Audergon
 */
@@ -16,11 +16,12 @@ var init = function (i, socket, r) {
     io = i;
     ref = r;
     socket.on('proxy_join', () => {
-        utils.logInfo('Socket ajouté dans la room ' + PROXY_ROOM);
+        utils.logInfo(`Socket ajouté dans la room ${PROXY_ROOM}`);
         socket.join(PROXY_ROOM);
     });
     //Proxy ==> Server
-    socket.on('hit', async (metadata, ip, date, host, url) => {
+    utils.logInfo('hit', async (metadata, ip, date, host, url) => {
+        console.log('RECU');
         if (!host.devmode) {
             ref.getBrowser(metadata["user-agent"], async result => {
                 let browser;
